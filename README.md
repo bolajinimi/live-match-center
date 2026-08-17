@@ -15,15 +15,45 @@ Live match dashboard with real-time score updates, event timelines, statistics, 
 
 ```bash
 npm install
-cp .env.example .env.local   # already points at the production API
+cp .env.example .env.local   # points at the production API
 npm run dev
 ```
 
 Open http://localhost:3000.
 
+### Local mock server (offline development)
+
+The production API (`profootball.srv883830.hstgr.cloud`) was intermittently
+unreachable (404 on every route, including `/health`) during development.
+Rather than block on it, `mock-server/` is a small local Express + Socket.IO
+server that mirrors the real REST response shapes and socket event contract
+exactly — same match/event/statistics JSON, same client↔server event names
+and payloads, same 500-char/rate-limit chat rules, same "1 second = 1 minute"
+simulated clock. It's not used in production and doesn't ship in the build.
+
+```bash
+npm run mock            # starts REST + Socket.IO on http://localhost:4000
+```
+
+Then point the app at it instead of production:
+
+```bash
+# .env.local
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+NEXT_PUBLIC_WS_URL=ws://localhost:4000
+```
+
+`npm run dev` in a second terminal. Verified end-to-end against this mock:
+dashboard live scores, match detail timeline/stats updating in real time,
+match status transitions (kickoff → half-time → second half → full-time →
+auto-replaced by a new fixture), and chat (join/leave, message broadcast,
+typing indicators, rate limiting). Swap `.env.local` back to the values in
+`.env.example` once the production API is reachable again.
+
 ## Folder Structure
 
 ```
+mock-server/                # local dev-only REST + Socket.IO mock (see above)
 src/
   app/
     layout.tsx              # root layout, wraps app in SocketProvider
@@ -87,6 +117,16 @@ src/
 
 ## Trade-offs / Known Limitations
 
+- **Built and tested against a local mock, not the live backend**, because
+  the production API was unreachable (404 on every route) during
+  development. `mock-server/` implements the documented contract exactly —
+  same REST shapes, same socket events/payloads, same rules — and was used
+  to verify the full flow (dashboard live scores, detail timeline/stats,
+  status transitions, chat with rate limiting and typing indicators) end to
+  end, including with a raw `socket.io-client` script outside the app to
+  confirm wire compatibility. It has not been re-verified against the real
+  server; there's some risk of a subtle contract mismatch (e.g. an
+  undocumented field) that only the real backend would surface.
 - **Pinned to Next.js 14.2** rather than the `create-next-app@latest`
   default (which resolved to Next 16 at scaffold time). The spec asks for
   "14+"; 14 is the best-documented, most stable target and avoids betting
