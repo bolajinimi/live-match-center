@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useLocalUser } from "@/hooks/useLocalUser";
 import { useSocket } from "@/contexts/SocketContext";
+import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 
 export function ChatPanel({ matchId }: { matchId: string }) {
   const { user, hydrated, setUsername } = useLocalUser();
@@ -26,21 +27,26 @@ function UsernamePrompt({ onSubmit }: { onSubmit: (name: string) => void }) {
         e.preventDefault();
         onSubmit(name);
       }}
-      className="rounded-xl border border-white/10 bg-white/[0.02] p-4"
+      className="flex flex-col items-center gap-3 py-6 text-center"
     >
-      <p className="mb-2 text-sm text-slate-300">Pick a username to join the chat.</p>
-      <div className="flex gap-2">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-accent-soft text-lg">💬</span>
+      <div>
+        <p className="text-sm font-medium text-ink">Join the conversation</p>
+        <p className="mt-0.5 text-xs text-ink-faint">Pick a username to start chatting.</p>
+      </div>
+      <div className="flex w-full max-w-xs gap-2">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={32}
           placeholder="Username"
-          className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none"
+          autoFocus
+          className="min-w-0 flex-1 rounded-full border border-border bg-surface-hover px-4 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
         />
         <button
           type="submit"
           disabled={!name.trim()}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+          className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           Join
         </button>
@@ -59,8 +65,8 @@ function ChatRoom({ matchId, userId, username }: { matchId: string; userId: stri
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [messages]);
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, typingUsers.length]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,34 +75,63 @@ function ChatRoom({ matchId, userId, username }: { matchId: string; userId: stri
     setDraft("");
   };
 
+  const remaining = maxLength - draft.length;
+  const nearLimit = remaining <= 40;
+
   return (
-    <div className="flex h-[28rem] flex-col rounded-xl border border-white/10 bg-white/[0.02]">
-      <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto p-4">
-        {messages.length === 0 && <p className="text-sm text-slate-500">No messages yet — say hello.</p>}
-        {messages.map((msg) => (
-          <div key={msg.id} className={msg.userId === userId ? "text-right" : "text-left"}>
-            <div
-              className={`inline-block max-w-[85%] rounded-lg px-3 py-1.5 text-sm ${
-                msg.userId === userId ? "bg-blue-600 text-white" : "bg-white/10 text-slate-100"
-              }`}
-            >
-              {msg.userId !== userId && (
-                <span className="mr-1.5 text-xs font-semibold text-slate-400">{msg.username}</span>
+    <div className="flex h-[28rem] flex-col overflow-hidden rounded-xl border border-border bg-canvas/40">
+      <div ref={listRef} className="scroll-thin flex-1 space-y-3 overflow-y-auto p-4">
+        {messages.length === 0 && (
+          <p className="pt-8 text-center text-sm text-ink-faint">No messages yet — say hello 👋</p>
+        )}
+        {messages.map((msg, i) => {
+          const own = msg.userId === userId;
+          const prev = messages[i - 1];
+          const showMeta = !prev || prev.userId !== msg.userId;
+          return (
+            <div key={msg.id} className={`flex items-end gap-2 ${own ? "flex-row-reverse" : ""}`}>
+              {!own && (
+                <div className={showMeta ? "opacity-100" : "opacity-0"}>
+                  <InitialsAvatar name={msg.username} size={26} />
+                </div>
               )}
-              {msg.message}
+              <div className={`flex max-w-[75%] flex-col ${own ? "items-end" : "items-start"}`}>
+                {showMeta && !own && (
+                  <span className="mb-1 px-1 text-xs font-medium text-ink-muted">{msg.username}</span>
+                )}
+                <div
+                  className={`px-3.5 py-2 text-sm leading-snug ${
+                    own
+                      ? "rounded-2xl rounded-br-md bg-accent text-white"
+                      : "rounded-2xl rounded-bl-md border border-border bg-surface text-ink"
+                  }`}
+                >
+                  {msg.message}
+                </div>
+              </div>
             </div>
+          );
+        })}
+
+        {typingUsers.length > 0 && (
+          <div className="flex items-center gap-2 px-1">
+            <span className="flex gap-0.5 rounded-full border border-border bg-surface px-2.5 py-2">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint [animation-delay:-0.3s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint [animation-delay:-0.15s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint" />
+            </span>
+            <span className="text-xs text-ink-faint">
+              {typingUsers.map((u) => u.username).join(", ")} {typingUsers.length === 1 ? "is" : "are"} typing
+            </span>
           </div>
-        ))}
+        )}
       </div>
 
-      <div className="min-h-[1.25rem] px-4 text-xs text-slate-500">
-        {typingUsers.length > 0 &&
-          `${typingUsers.map((u) => u.username).join(", ")} ${typingUsers.length === 1 ? "is" : "are"} typing…`}
-      </div>
+      {chatError && (
+        <div className="border-t border-live/20 bg-live-soft px-4 py-1.5 text-xs text-live">{chatError}</div>
+      )}
 
-      {chatError && <div className="px-4 pb-1 text-xs text-red-400">{chatError}</div>}
-
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t border-white/10 p-3">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t border-border p-3">
         <input
           value={draft}
           onChange={(e) => {
@@ -106,16 +141,30 @@ function ChatRoom({ matchId, userId, username }: { matchId: string; userId: stri
           maxLength={maxLength}
           disabled={status !== "connected"}
           placeholder={status === "connected" ? "Send a message…" : "Reconnecting…"}
-          className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none disabled:opacity-50"
+          className="min-w-0 flex-1 rounded-full border border-border bg-surface-hover px-4 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50"
         />
+        {nearLimit && (
+          <span className={`text-xs tabular-nums ${remaining < 0 ? "text-live" : "text-ink-faint"}`}>
+            {remaining}
+          </span>
+        )}
         <button
           type="submit"
           disabled={!draft.trim() || status !== "connected"}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+          aria-label="Send message"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Send
+          <SendIcon />
         </button>
       </form>
     </div>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M4 12L20 4L14 20L11 13L4 12Z" fill="currentColor" />
+    </svg>
   );
 }

@@ -98,7 +98,15 @@ src/
 - **Connection status is surfaced, not hidden.** `SocketContext` tracks
   `connecting` / `connected` / `reconnecting` / `disconnected` from the
   underlying `socket.io` manager events and renders it as a badge in the
-  header at all times.
+  header at all times. Socket creation and teardown live in a single
+  `useEffect` (not a `useMemo` + a separate cleanup effect) — that split
+  was tried first and, under React 18 Strict Mode's dev-only
+  mount→cleanup→mount double-invoke, closed the shared socket a beat after
+  creating it, leaving `status` stuck on "Connecting" even though the
+  transport had silently reconnected underneath. Keeping create/destroy in
+  one effect makes the double-invoke closes-and-fully-recreates one
+  coherent socket instead of orphaning half of it — caught by actually
+  screenshotting the running app, not just from reading the code.
 - **Reconnection recovers state, not just the pipe.** `socket.io-client`'s
   built-in reconnection (infinite attempts, capped backoff) restores the
   transport, but a reconnected socket alone doesn't tell you what happened

@@ -15,7 +15,10 @@ export default async function MatchPage({ params }: { params: { id: string } }) 
 
   return (
     <div>
-      <Link href="/" className="mb-6 inline-block text-sm text-slate-400 hover:text-white">
+      <Link
+        href="/"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted transition-colors hover:text-ink"
+      >
         ← All matches
       </Link>
       <MatchDetailView matchId={params.id} initialMatch={match} />

@@ -1,11 +1,13 @@
 export default function Loading() {
   return (
     <div className="space-y-6">
-      <div className="h-32 animate-pulse rounded-2xl border border-white/10 bg-white/[0.02]" />
+      <div className="skeleton h-8 w-24 animate-shimmer rounded-lg" />
+      <div className="skeleton h-40 animate-shimmer rounded-2xl border border-border" />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="h-64 animate-pulse rounded-xl border border-white/10 bg-white/[0.02]" />
-        <div className="h-64 animate-pulse rounded-xl border border-white/10 bg-white/[0.02]" />
+        <div className="skeleton h-64 animate-shimmer rounded-2xl border border-border" />
+        <div className="skeleton h-64 animate-shimmer rounded-2xl border border-border" />
       </div>
+      <div className="skeleton h-64 animate-shimmer rounded-2xl border border-border" />
     </div>
   );
 }

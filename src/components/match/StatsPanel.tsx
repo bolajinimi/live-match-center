@@ -12,7 +12,7 @@ const ROWS: { key: keyof MatchStatistics; label: string }[] = [
 
 export function StatsPanel({ statistics }: { statistics: MatchStatistics }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {ROWS.map(({ key, label }) => (
         <StatRow key={key} label={label} home={statistics[key].home} away={statistics[key].away} />
       ))}
@@ -26,14 +26,17 @@ function StatRow({ label, home, away }: { label: string; home: number; away: num
 
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between text-xs text-slate-400">
-        <span className="tabular-nums">{home}</span>
-        <span>{label}</span>
-        <span className="tabular-nums">{away}</span>
+      <div className="mb-1.5 flex items-center justify-between text-xs">
+        <span className="w-8 font-semibold tabular-nums text-ink">{home}</span>
+        <span className="text-ink-faint">{label}</span>
+        <span className="w-8 text-right font-semibold tabular-nums text-ink">{away}</span>
       </div>
-      <div className="flex h-1.5 overflow-hidden rounded-full bg-white/10">
-        <div className="bg-blue-500" style={{ width: `${homePct}%` }} />
-        <div className="bg-slate-500" style={{ width: `${100 - homePct}%` }} />
+      <div className="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-surface-hover">
+        <div className="rounded-full bg-accent transition-[width] duration-500" style={{ width: `${homePct}%` }} />
+        <div
+          className="rounded-full bg-ink-faint/60 transition-[width] duration-500"
+          style={{ width: `${100 - homePct}%` }}
+        />
       </div>
     </div>
   );

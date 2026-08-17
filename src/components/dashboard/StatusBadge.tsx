@@ -13,15 +13,18 @@ export function StatusBadge({ status, minute }: { status: MatchStatus; minute: n
 
   if (live) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-semibold text-red-400">
-        <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-live-soft px-2.5 py-1 text-xs font-semibold tabular-nums text-live">
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-live opacity-75" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-live" />
+        </span>
         {status === "HALF_TIME" ? "HT" : `${minute}'`}
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-400">
+    <span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-xs font-medium text-ink-muted">
       {LABEL[status]}
     </span>
   );

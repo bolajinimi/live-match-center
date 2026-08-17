@@ -3,11 +3,67 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0e14;
-  --foreground: #e2e8f0;
+  --canvas: #0a0d12;
+  --surface: #12161d;
+  --surface-hover: #171c24;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --ink: #f4f6f8;
+  --ink-muted: #9aa4b2;
+  --ink-faint: #6b7482;
+  --accent: #4f7fff;
+  --accent-hover: #3d6bef;
+  --accent-soft: rgba(79, 127, 255, 0.14);
+  --live: #ef4444;
+  --live-soft: rgba(239, 68, 68, 0.16);
+  --success: #22c55e;
+  --warning: #f59e0b;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--ink);
+  background: var(--canvas);
+  font-feature-settings: "cv11", "ss01";
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+/* Slim, unobtrusive scrollbars for chat panes etc. */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--surface) 25%,
+      var(--surface-hover) 50%,
+      var(--surface) 75%
+    );
+    background-size: 200% 100%;
+  }
 }

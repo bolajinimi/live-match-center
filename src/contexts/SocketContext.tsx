@@ -23,15 +23,25 @@ const SocketContext = createContext<SocketContextValue>({ socket: null, status: 
  * One Socket.IO connection is created for the whole app (not per-page) and
  * shared via context. Individual features (match subscriptions, chat rooms)
  * layer their own subscribe/unsubscribe lifecycle on top via hooks — see
- * useMatchSubscription / useChat.
+ * useMatches / useMatchDetail / useChat.
+ *
+ * Creation + teardown live in a single effect (not split across a useMemo +
+ * a separate cleanup effect) so React 18 Strict Mode's dev-only
+ * mount→cleanup→mount double-invoke stays correct: it closes and fully
+ * recreates one coherent socket instead of closing a socket that a
+ * memoized value elsewhere still thinks is alive.
  */
 export function SocketProvider({ children }: { children: React.ReactNode }) {
-  const socket = useMemo<AppSocket | null>(() => {
+  const [socket, setSocket] = useState<AppSocket | null>(null);
+  const [status, setStatus] = useState<ConnectionStatus>("connecting");
+
+  useEffect(() => {
     if (!WS_URL) {
       console.error("NEXT_PUBLIC_WS_URL is not set. Copy .env.example to .env.local.");
-      return null;
+      return;
     }
-    return io(WS_URL, {
+
+    const s: AppSocket = io(WS_URL, {
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: Infinity,
@@ -39,41 +49,30 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       reconnectionDelayMax: 10000,
       transports: ["websocket", "polling"],
     });
-    // Created once per app lifetime (client-side singleton for this provider instance).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  const [status, setStatus] = useState<ConnectionStatus>("connecting");
-
-  useEffect(() => {
-    if (!socket) return;
+    setStatus("connecting");
+    setSocket(s);
 
     const handleConnect = () => setStatus("connected");
     const handleDisconnect = () => setStatus("disconnected");
     const handleReconnectAttempt = () => setStatus("reconnecting");
     const handleConnectError = () => setStatus("reconnecting");
 
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.io.on("reconnect_attempt", handleReconnectAttempt);
-    socket.io.on("reconnect", handleConnect);
-    socket.on("connect_error", handleConnectError);
+    s.on("connect", handleConnect);
+    s.on("disconnect", handleDisconnect);
+    s.io.on("reconnect_attempt", handleReconnectAttempt);
+    s.io.on("reconnect", handleConnect);
+    s.on("connect_error", handleConnectError);
 
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
-      socket.io.off("reconnect_attempt", handleReconnectAttempt);
-      socket.io.off("reconnect", handleConnect);
-      socket.off("connect_error", handleConnectError);
+      s.off("connect", handleConnect);
+      s.off("disconnect", handleDisconnect);
+      s.io.off("reconnect_attempt", handleReconnectAttempt);
+      s.io.off("reconnect", handleConnect);
+      s.off("connect_error", handleConnectError);
+      s.close();
     };
-  }, [socket]);
-
-  // Tear down the connection when the whole app unmounts (e.g. HMR/navigation away).
-  useEffect(() => {
-    return () => {
-      socket?.close();
-    };
-  }, [socket]);
+  }, []);
 
   const value = useMemo(() => ({ socket, status }), [socket, status]);
 

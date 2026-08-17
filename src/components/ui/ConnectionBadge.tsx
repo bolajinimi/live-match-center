@@ -4,16 +4,16 @@ import { useSocket } from "@/contexts/SocketContext";
 
 const LABEL: Record<string, string> = {
   connected: "Live",
-  connecting: "Connecting…",
-  reconnecting: "Reconnecting…",
+  connecting: "Connecting",
+  reconnecting: "Reconnecting",
   disconnected: "Offline",
 };
 
 const DOT_CLASS: Record<string, string> = {
-  connected: "bg-emerald-500",
-  connecting: "bg-amber-400 animate-pulse",
-  reconnecting: "bg-amber-400 animate-pulse",
-  disconnected: "bg-red-500",
+  connected: "bg-success",
+  connecting: "bg-warning animate-pulse",
+  reconnecting: "bg-warning animate-pulse",
+  disconnected: "bg-live",
 };
 
 export function ConnectionBadge() {
@@ -21,7 +21,7 @@ export function ConnectionBadge() {
 
   return (
     <div
-      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300"
+      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted"
       title={`WebSocket: ${status}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[status]}`} />

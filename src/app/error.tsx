@@ -2,11 +2,14 @@
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
   return (
-    <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
-      <p className="mb-3 text-sm text-red-300">Couldn&apos;t load matches: {error.message}</p>
+    <div className="rounded-2xl border border-live/30 bg-live-soft p-8 text-center">
+      <p className="mb-4 text-sm text-ink">
+        <span className="font-semibold text-live">Couldn&apos;t load matches.</span>{" "}
+        <span className="text-ink-muted">{error.message}</span>
+      </p>
       <button
         onClick={reset}
-        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
+        className="rounded-lg bg-live px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
       >
         Try again
       </button>
