@@ -18,7 +18,7 @@ export function Timeline({ events }: { events: MatchEvent[] }) {
   const sorted = [...events].sort((a, b) => b.minute - a.minute);
 
   return (
-    <ol className="relative">
+    <ol className="relative" aria-live="polite" aria-relevant="additions">
       <div className="absolute left-1/2 top-1 bottom-1 w-px -translate-x-1/2 bg-border" aria-hidden />
       {sorted.map((event) => (
         <TimelineRow key={`${event.id}-${event.minute}`} event={event} />

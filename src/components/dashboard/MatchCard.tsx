@@ -2,6 +2,7 @@ import Link from "next/link";
 import { StatusBadge } from "./StatusBadge";
 import { TeamAvatar } from "@/components/ui/TeamAvatar";
 import { isLiveStatus, type Match } from "@/types/match";
+import { formatShortDate } from "@/lib/format";
 
 export function MatchCard({ match }: { match: Match }) {
   const live = isLiveStatus(match.status);
@@ -18,9 +19,7 @@ export function MatchCard({ match }: { match: Match }) {
 
       <div className="mb-4 flex items-center justify-between">
         <StatusBadge status={match.status} minute={match.minute} />
-        <span className="text-xs text-ink-faint">
-          {new Date(match.startTime).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-        </span>
+        <span className="text-xs text-ink-faint">{formatShortDate(match.startTime)}</span>
       </div>
 
       <div className="space-y-3">

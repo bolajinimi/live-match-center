@@ -10,12 +10,22 @@
   --border-strong: rgba(255, 255, 255, 0.16);
   --ink: #f4f6f8;
   --ink-muted: #9aa4b2;
-  --ink-faint: #6b7482;
+  /* #6b7482 measured 3.84:1 on --surface, below WCAG AA's 4.5:1 for normal
+     text. This shade clears 4.66:1 while keeping the same hue. */
+  --ink-faint: #788290;
   --accent: #4f7fff;
   --accent-hover: #3d6bef;
   --accent-soft: rgba(79, 127, 255, 0.14);
+  /* Solid fills for buttons/message bubbles carrying white text. --accent
+     itself is only 3.61:1 against white — fails AA for normal text — so
+     solid, text-bearing surfaces use this darker pair instead. */
+  --accent-solid: #3d6bef;
+  --accent-solid-hover: #3560d6;
   --live: #ef4444;
   --live-soft: rgba(239, 68, 68, 0.16);
+  /* Same problem as --accent: #ef4444 is only 3.76:1 against white text. */
+  --live-solid: #dc2626;
+  --live-solid-hover: #b91c1c;
   --success: #22c55e;
   --warning: #f59e0b;
 }
@@ -37,6 +47,13 @@ body {
 ::selection {
   background: var(--accent-soft);
   color: var(--ink);
+}
+
+/* Consistent, visible keyboard focus ring across links/buttons/inputs.
+   :focus-visible (not :focus) so mouse/touch interaction stays ring-free. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Slim, unobtrusive scrollbars for chat panes etc. */

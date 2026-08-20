@@ -46,7 +46,7 @@ function UsernamePrompt({ onSubmit }: { onSubmit: (name: string) => void }) {
         <button
           type="submit"
           disabled={!name.trim()}
-          className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-full bg-accent-solid px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-solid-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           Join
         </button>
@@ -80,7 +80,13 @@ function ChatRoom({ matchId, userId, username }: { matchId: string; userId: stri
 
   return (
     <div className="flex h-[28rem] flex-col overflow-hidden rounded-xl border border-border bg-canvas/40">
-      <div ref={listRef} className="scroll-thin flex-1 space-y-3 overflow-y-auto p-4">
+      <div
+        ref={listRef}
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        className="scroll-thin flex-1 space-y-3 overflow-y-auto p-4"
+      >
         {messages.length === 0 && (
           <p className="pt-8 text-center text-sm text-ink-faint">No messages yet — say hello 👋</p>
         )}
@@ -102,7 +108,7 @@ function ChatRoom({ matchId, userId, username }: { matchId: string; userId: stri
                 <div
                   className={`px-3.5 py-2 text-sm leading-snug ${
                     own
-                      ? "rounded-2xl rounded-br-md bg-accent text-white"
+                      ? "rounded-2xl rounded-br-md bg-accent-solid text-white"
                       : "rounded-2xl rounded-bl-md border border-border bg-surface text-ink"
                   }`}
                 >
@@ -152,7 +158,7 @@ function ChatRoom({ matchId, userId, username }: { matchId: string; userId: stri
           type="submit"
           disabled={!draft.trim() || status !== "connected"}
           aria-label="Send message"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-solid text-white transition-colors hover:bg-accent-solid-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           <SendIcon />
         </button>

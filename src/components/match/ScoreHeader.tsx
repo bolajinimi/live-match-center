@@ -1,6 +1,7 @@
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
 import { TeamAvatar } from "@/components/ui/TeamAvatar";
 import type { MatchDetail } from "@/types/match";
+import { formatKickoff } from "@/lib/format";
 
 export function ScoreHeader({ match }: { match: MatchDetail }) {
   return (
@@ -17,23 +18,22 @@ export function ScoreHeader({ match }: { match: MatchDetail }) {
 
       <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
         <TeamBlock name={match.homeTeam.name} shortName={match.homeTeam.shortName} align="right" />
-        <div className="flex items-center gap-2.5 text-3xl font-bold tabular-nums text-ink sm:gap-4 sm:text-5xl">
-          <span>{match.homeScore}</span>
-          <span className="text-ink-faint">-</span>
-          <span>{match.awayScore}</span>
+        <div
+          className="flex items-center gap-2.5 text-3xl font-bold tabular-nums text-ink sm:gap-4 sm:text-5xl"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-label={`Score: ${match.homeTeam.shortName} ${match.homeScore}, ${match.awayTeam.shortName} ${match.awayScore}`}
+        >
+          <span aria-hidden>{match.homeScore}</span>
+          <span className="text-ink-faint" aria-hidden>
+            -
+          </span>
+          <span aria-hidden>{match.awayScore}</span>
         </div>
         <TeamBlock name={match.awayTeam.name} shortName={match.awayTeam.shortName} align="left" />
       </div>
 
-      <p className="relative mt-6 text-center text-xs text-ink-faint">
-        Kickoff{" "}
-        {new Date(match.startTime).toLocaleString(undefined, {
-          month: "short",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-        })}
-      </p>
+      <p className="relative mt-6 text-center text-xs text-ink-faint">Kickoff {formatKickoff(match.startTime)}</p>
     </div>
   );
 }

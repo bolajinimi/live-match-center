@@ -23,6 +23,8 @@ export function ConnectionBadge() {
     <div
       className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted"
       title={`WebSocket: ${status}`}
+      role="status"
+      aria-live="polite"
     >
       <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASS[status]}`} />
       {LABEL[status]}
